@@ -39,34 +39,33 @@ export async function submitQuizResults(answers: QuizAnswers) {
       description = "У тебя развито визуальное восприятие, чувство стиля, но ты не хочешь ограничивать себя рамками одного учебника. Твое место на отделении креативных индустрий! Здесь дизайн, реклама, музыка и анимация создают единую экосистему. Ты научишься не просто «рисовать», а создавать целые миры и упаковывать идеи в крутые медиапродукты.";
     }
 
-    // 2. ЛОГИКА СБОРА ДАННЫХ: Читаем старый файл и добавляем новую запись
-    let currentData = [];
-    
-    // Если файл со статистикой уже существует — считываем его
-    if (fs.existsSync(STATS_FILE_PATH)) {
-      const fileContent = fs.readFileSync(STATS_FILE_PATH, "utf-8");
-      try {
-        currentData = JSON.parse(fileContent);
-      } catch (e) {
-        currentData = []; // Если файл был побит или пуст
+    /////
+
+        // Проверяем, запущен ли сайт на Vercel (в облаке)
+    const isVercel = process.env.VERCEL === "1";
+
+    if (isVercel) {
+      // В облаке Vercel просто выводим данные в консоль, чтобы сайт не падал
+      console.log("=== ОБЛАКО VERCEL: Статистика ответов ===");
+      console.log("Данные ответа:", JSON.stringify(answers));
+    } else {
+      // На твоем компьютере (локально) продолжает работать сохранение в файл stats.json
+      let currentData = [];
+      if (fs.existsSync(STATS_FILE_PATH)) {
+        const fileContent = fs.readFileSync(STATS_FILE_PATH, "utf-8");
+        try { currentData = JSON.parse(fileContent); } catch (e) { currentData = []; }
       }
+      
+      const newEntry = {
+        timestamp: new Date().toISOString(),
+        answers: answers,
+        resultSphere: sphere
+      };
+      
+      currentData.push(newEntry);
+      fs.writeFileSync(STATS_FILE_PATH, JSON.stringify(currentData, null, 2), "utf-8");
+      console.log(`=== ЛОКАЛЬНЫЙ СЕРВЕР: Записано в файл. Всего: ${currentData.length} ===`);
     }
-
-    // Создаем объект новой записи
-    const newEntry = {
-      timestamp: new Date().toISOString(), // Дата и время прохождения
-      answers: answers,                    // Что конкретно ответил
-      resultSphere: sphere                 // Итоговый вердикт
-    };
-
-    // Добавляем запись в массив
-    currentData.push(newEntry);
-
-    // Записываем обновленный массив обратно в файл stats.json с красивыми отступами
-    fs.writeFileSync(STATS_FILE_PATH, JSON.stringify(currentData, null, 2), "utf-8");
-
-    // Вывод в консоль сервера для проверки
-    console.log(`=== СЕРВЕР: Новая запись добавлена! Всего ответов: ${currentData.length} ===`);
 
     return { success: true, title, description };
   } catch (error) {
