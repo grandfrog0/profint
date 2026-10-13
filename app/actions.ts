@@ -39,9 +39,7 @@ export async function submitQuizResults(answers: QuizAnswers) {
       description = "У тебя развито визуальное восприятие, чувство стиля, но ты не хочешь ограничивать себя рамками одного учебника. Твое место на отделении креативных индустрий! Здесь дизайн, реклама, музыка и анимация создают единую экосистему. Ты научишься не просто «рисовать», а создавать целые миры и упаковывать идеи в крутые медиапродукты.";
     }
 
-    /////
-
-        // Проверяем, запущен ли сайт на Vercel (в облаке)
+    // Проверяем, запущен ли сайт на Vercel (в облаке)
     const isVercel = process.env.VERCEL === "1";
 
     if (isVercel) {
@@ -71,5 +69,30 @@ export async function submitQuizResults(answers: QuizAnswers) {
   } catch (error) {
     console.error("Ошибка сервера при записи файла:", error);
     return { success: false, title: "Ошибка", description: "Не удалось сохранить результат на сервере." };
+  }
+}
+
+export async function getGeneralStats() {
+  try {
+    const totalCounts = { IT: 0, Экономика: 0, Креатив: 0, total: 0 };
+
+    if (fs.existsSync(STATS_FILE_PATH)) {
+      const fileContent = fs.readFileSync(STATS_FILE_PATH, "utf-8");
+      const currentData = JSON.parse(fileContent);
+
+      // Проходимся по всем записям в файле и суммируем результаты
+      currentData.forEach((entry: any) => {
+        if (entry.resultSphere === "IT") totalCounts.IT++;
+        if (entry.resultSphere === "Экономика") totalCounts.Экономика++;
+        if (entry.resultSphere === "Креатив") totalCounts.Креатив++;
+      });
+
+      totalCounts.total = currentData.length;
+    }
+
+    return { success: true, data: totalCounts };
+  } catch (error) {
+    console.error("Ошибка при подсчете общей статистики:", error);
+    return { success: false, data: { IT: 0, Экономика: 0, Креатив: 0, total: 0 } };
   }
 }
