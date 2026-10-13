@@ -9,7 +9,7 @@ interface QuizAnswers {
 }
 
 // Путь к файлу, где будет лежать статистика (в корне проекта файл stats.json)
-const STATS_FILE_PATH = path.join(process.cwd(), "stats.json");
+const STATS_FILE_PATH = path.join(process.cwd(), "data/stats.json");
 
 export async function submitQuizResults(answers: QuizAnswers) {
   try {
@@ -28,15 +28,18 @@ export async function submitQuizResults(answers: QuizAnswers) {
     if (counts.А >= counts.Б && counts.А >= counts.В) {
       title = "Сфера IT";
       sphere = "IT";
-      description = "Тебе нравится логика, структура и решение технических задач. Ты сможешь стать разработчиком, сисадмином или оператором беспилотных летательных аппаратов. В колледже тебе отлично подойдут отделения: «ИТ и БПЛА», «Программирование».";
+      description =
+        "Тебе нравится логика, структура и решение технических задач. Ты сможешь стать разработчиком, сисадмином или оператором беспилотных летательных аппаратов. В колледже тебе отлично подойдут отделения: «ИТ и БПЛА», «Программирование».";
     } else if (counts.Б >= counts.А && counts.Б >= counts.В) {
       title = "Твой путь: Экономика и финансы";
       sphere = "Экономика";
-      description = "Ты любишь точность, расчеты и порядок в делах. Твои специальности в колледже: «Экономика и бухгалтерский учет», «Банковское дело». Из тебя выйдет отличный аналитик, бухгалтер или менеджер.";
+      description =
+        "Ты любишь точность, расчеты и порядок в делах. Твои специальности в колледже: «Экономика и бухгалтерский учет», «Банковское дело». Из тебя выйдет отличный аналитик, бухгалтер или менеджер.";
     } else {
       title = "Твой путь: Креативные индустрии";
       sphere = "Креатив";
-      description = "У тебя развито визуальное восприятие, чувство стиля, но ты не хочешь ограничивать себя рамками одного учебника. Твое место на отделении креативных индустрий! Здесь дизайн, реклама, музыка и анимация создают единую экосистему. Ты научишься не просто «рисовать», а создавать целые миры и упаковывать идеи в крутые медиапродукты.";
+      description =
+        "У тебя развито визуальное восприятие, чувство стиля, но ты не хочешь ограничивать себя рамками одного учебника. Твое место на отделении креативных индустрий! Здесь дизайн, реклама, музыка и анимация создают единую экосистему. Ты научишься не просто «рисовать», а создавать целые миры и упаковывать идеи в крутые медиапродукты.";
     }
 
     // Проверяем, запущен ли сайт на Vercel (в облаке)
@@ -51,15 +54,19 @@ export async function submitQuizResults(answers: QuizAnswers) {
       let currentData = [];
       if (fs.existsSync(STATS_FILE_PATH)) {
         const fileContent = fs.readFileSync(STATS_FILE_PATH, "utf-8");
-        try { currentData = JSON.parse(fileContent); } catch (e) { currentData = []; }
+        try {
+          currentData = JSON.parse(fileContent);
+        } catch (e) {
+          currentData = [];
+        }
       }
-      
+
       const newEntry = {
         timestamp: new Date().toISOString(),
         answers: answers,
-        resultSphere: sphere
+        resultSphere: sphere,
       };
-      
+
       currentData.push(newEntry);
       fs.writeFileSync(STATS_FILE_PATH, JSON.stringify(currentData, null, 2), "utf-8");
       console.log(`=== ЛОКАЛЬНЫЙ СЕРВЕР: Записано в файл. Всего: ${currentData.length} ===`);
@@ -68,7 +75,11 @@ export async function submitQuizResults(answers: QuizAnswers) {
     return { success: true, title, description };
   } catch (error) {
     console.error("Ошибка сервера при записи файла:", error);
-    return { success: false, title: "Ошибка", description: "Не удалось сохранить результат на сервере." };
+    return {
+      success: false,
+      title: "Ошибка",
+      description: "Не удалось сохранить результат на сервере.",
+    };
   }
 }
 
