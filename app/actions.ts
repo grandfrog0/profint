@@ -56,7 +56,7 @@ export async function submitQuizResults(answers: QuizAnswers) {
         const fileContent = fs.readFileSync(STATS_FILE_PATH, "utf-8");
         try {
           currentData = JSON.parse(fileContent);
-        } catch (e) {
+        } catch {
           currentData = [];
         }
       }
@@ -92,7 +92,7 @@ export async function getGeneralStats() {
       const currentData = JSON.parse(fileContent);
 
       // Проходимся по всем записям в файле и суммируем результаты
-      currentData.forEach((entry: any) => {
+      currentData.forEach((entry: { resultSphere: "IT" | "Экономика" | "Креатив" }) => {
         if (entry.resultSphere === "IT") totalCounts.IT++;
         if (entry.resultSphere === "Экономика") totalCounts.Экономика++;
         if (entry.resultSphere === "Креатив") totalCounts.Креатив++;
